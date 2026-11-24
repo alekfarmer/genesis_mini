@@ -1,0 +1,17 @@
+# Project-local toolchain (created by `make setup`)
+.venv/
+.pio-core/
+.pio/
+
+# Project-local Axiometa catalog tooling (see .mcp.json.example)
+.axiometa/
+.cache/
+
+# Secrets
+.env
+include/secrets.h
+.mcp.json
+
+# Editors / OS
+.vscode/
+.DS_Store

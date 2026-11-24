@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "axiometa": {
+      "command": "/ABSOLUTE/PATH/TO/genesis_mini/.venv/bin/python",
+      "args": ["-m", "axiometa_cli", "mcp"],
+      "env": {
+        "AXIOMETA_KEY": "axm_YOUR_KEY_HERE",
+        "AXIOMETA_HOME": "/ABSOLUTE/PATH/TO/genesis_mini/.axiometa",
+        "XDG_CACHE_HOME": "/ABSOLUTE/PATH/TO/genesis_mini/.cache",
+        "SSL_CERT_FILE": "/etc/ssl/cert.pem"
+      }
+    }
+  }
+}
