@@ -1,0 +1,6 @@
+{
+  "name": "periodic",
+  "version": "0.1.0",
+  "description": "Rollover-safe non-blocking interval timer (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
