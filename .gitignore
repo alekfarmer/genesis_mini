@@ -7,6 +7,9 @@
 .axiometa/
 .cache/
 
+# Flash backups (vendor firmware, may hold saved settings)
+backups/
+
 # Secrets
 .env
 include/secrets.h

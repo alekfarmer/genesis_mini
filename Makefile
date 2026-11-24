@@ -13,10 +13,13 @@ export PLATFORMIO_CORE_DIR := $(CURDIR)/.pio-core
 PLATFORMIO_VERSION   := 6.2.0
 AXIOMETA_CLI_VERSION := 2.0.2
 
+ESPTOOL    := .pio-core/penv/bin/esptool
+BACKUP_DIR := backups
+
 # Every [env:...] in platformio.ini except the host test environment.
 PROJECTS := $(filter-out native,$(patsubst [env:%],%,$(shell grep -oE '^\[env:[a-z0-9_]+\]' platformio.ini)))
 
-.PHONY: help setup projects build test ports upload monitor clean verify check-project check-port
+.PHONY: help setup projects build test ports upload monitor backup restore clean verify check-project check-port check-esptool
 
 help: ## List targets
 	@grep -E '^[a-z]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -48,6 +51,18 @@ upload: $(STAMP) check-project check-port ## Flash a project: make upload PROJEC
 monitor: $(STAMP) check-port ## Serial monitor: make monitor PORT=/dev/cu.usbmodemXXXX
 	$(PIO) device monitor -p $(PORT) -b 115200
 
+backup: $(STAMP) check-port check-esptool ## Save the board's whole 4 MB flash: make backup PORT=/dev/cu.usbmodemXXXX
+	@mkdir -p $(BACKUP_DIR)
+	@f=$(BACKUP_DIR)/genesis_mini-$$(date +%Y%m%d-%H%M%S).bin; \
+	$(ESPTOOL) --chip esp32s3 --port $(PORT) --baud 921600 read-flash 0 ALL $$f && \
+	$(ESPTOOL) --chip esp32s3 --port $(PORT) --baud 921600 verify-flash 0 $$f && \
+	shasum -a 256 $$f > $$f.sha256 && echo "Backup saved and verified against the board: $$f"
+
+restore: $(STAMP) check-port check-esptool ## Write a backup over the WHOLE flash (ask first): make restore PORT=... BACKUP=backups/<file>.bin
+	@test -f "$(BACKUP)" || { echo "BACKUP=<file> is required, see $(BACKUP_DIR)/"; exit 1; }
+	shasum -a 256 -c $(BACKUP).sha256
+	$(ESPTOOL) --chip esp32s3 --port $(PORT) --baud 921600 write-flash 0 $(BACKUP)
+
 clean: ## Remove build output (keeps the toolchain)
 	rm -rf .pio/build
 
@@ -60,3 +75,6 @@ check-project:
 check-port:
 	@test -n "$(PORT)" || { echo "PORT is required, e.g. PORT=/dev/cu.usbmodem1101 (see 'make ports')"; exit 1; }
 	@test -e "$(PORT)" || { echo "$(PORT) does not exist (see 'make ports')"; exit 1; }
+
+check-esptool:
+	@test -x $(ESPTOOL) || { echo "Run 'make setup' first"; exit 1; }
