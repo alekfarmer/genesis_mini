@@ -2,16 +2,15 @@
 
 The Genesis Mini Starter Kit modules, and the AX22 port each one is plugged
 into. This file is the source of truth for wiring: if a module or port is not
-listed here, it is not connected. Pin numbers live in `include/pins.h`.
+listed here, it is not connected. Pin numbers live in `include/pins.h`, and
+per-module pin roles come from the Axiometa catalog (`get_module`).
 
-| AX22 port | Module                       | Interface | Catalog id | Notes |
-|-----------|------------------------------|-----------|------------|-------|
-| 1         | Screen                       | TBD       | TBD        |       |
-| 2         | Buzzer                       | TBD       | TBD        |       |
-| 3         | Temperature/humidity sensor  | TBD       | TBD        |       |
-| 4         | Rotary encoder               | TBD       | TBD        |       |
+| AX22 port | Module                      | Catalog id | Interface | Pins used |
+|-----------|-----------------------------|------------|-----------|-----------|
+| 1         | ST7735 160×80 IPS TFT       | AX22-0034  | SPI (shared bus) | IO0 = CS, IO1 = RST, IO2 = DC |
+| 2         | Passive buzzer              | AX22-0018  | PWM       | IO1 |
+| 3         | Temperature/humidity sensor | TBD: DHT11 (AX22-0011) or BME280 (AX22-0026) | DHT11: single-wire on IO1. BME280: I2C at 0x77 | TBD |
+| 4         | Rotary encoder + button     | AX22-0003  | GPIO      | IO0 = button (active HIGH), IO1 = CLK, IO2 = DT |
 
-On-board (no port): NeoPixel, STEMMA QT (I²C) connector, USB-C.
-
-"TBD" entries get filled in from the Axiometa catalog (`get_module`), never
-from memory.
+On-board (no port): NeoPixel (GPIO21), user button (GPIO45), STEMMA QT
+(I2C: SDA GPIO10, SCL GPIO11), USB-C.

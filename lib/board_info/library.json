@@ -1,0 +1,8 @@
+{
+  "name": "board_info",
+  "version": "0.1.0",
+  "description": "Boot diagnostics: chip, flash, PSRAM, reset reason.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
