@@ -54,8 +54,8 @@ monitor: $(STAMP) check-port ## Serial monitor: make monitor PORT=/dev/cu.usbmod
 backup: $(STAMP) check-port check-esptool ## Save the board's whole 4 MB flash: make backup PORT=/dev/cu.usbmodemXXXX
 	@mkdir -p $(BACKUP_DIR)
 	@f=$(BACKUP_DIR)/genesis_mini-$$(date +%Y%m%d-%H%M%S).bin; \
-	$(ESPTOOL) --chip esp32s3 --port $(PORT) --baud 921600 read-flash 0 ALL $$f && \
-	$(ESPTOOL) --chip esp32s3 --port $(PORT) --baud 921600 verify-flash 0 $$f && \
+	$(ESPTOOL) --chip esp32s3 --port $(PORT) --no-stub read-flash 0 ALL $$f && \
+	$(ESPTOOL) --chip esp32s3 --port $(PORT) --no-stub verify-flash 0 $$f && \
 	shasum -a 256 $$f > $$f.sha256 && echo "Backup saved and verified against the board: $$f"
 
 restore: $(STAMP) check-port check-esptool ## Write a backup over the WHOLE flash (ask first): make restore PORT=... BACKUP=backups/<file>.bin
