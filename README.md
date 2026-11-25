@@ -12,7 +12,7 @@ board, and you choose which one to flash.
 |-------------|--------------|
 | `hello`     | First flash on a new board: boot report (chip, flash, PSRAM, reset reason), I2C scan, NeoPixel heartbeat (green = OK, red = a check failed). |
 | `kit_demo`  | Over-temperature alarm using every Starter Kit module: the screen shows temperature, humidity and a threshold; turn the knob to set the threshold; above it, the buzzer beeps and the NeoPixel turns red; press the knob to silence. |
-| `blockfall` | Falling-block puzzle game. Hold the board in portrait (screen tall). Turn the knob to move, press it to rotate; tap the on-board button to drop, hold it to fall faster. The best score is saved in flash. |
+| `arcade`    | Boots to a game menu: **Snake**, **Shooter**, **Beats** (a beat maker) and **Blockfall**. Turn the knob to choose, press it to start; hold the knob for 1.5 s in any game to return to the menu. Best scores are saved in flash. |
 
 ## Requirements
 
@@ -111,37 +111,73 @@ After `make upload PROJECT=kit_demo ...` and `make monitor ...`:
 7. **Sensor unplugged** (optional): within 2 s the status shows `NO SENSR`
    and serial logs `[dht] ERROR: read failed`.
 
-## Checking `blockfall` on the board
+## The arcade
 
-After `make upload PROJECT=blockfall ...`, hold the board so the screen is
-tall:
+`make upload PROJECT=arcade ...` boots to the menu. The "on-board button" is
+the unlabelled one, not BOOT or RESET.
 
-1. **Screen:** score and `LV 1` top left, the next piece top right, and the
-   bordered well below with a piece falling about once every 0.8 s. Nothing
-   should be cut off. If the picture is upside down, change
-   `kPortrait` to `kPortraitFlipped` in `BlockfallScreen::begin()`
-   (`lib/blockfall_screen/blockfall_screen.cpp`).
-2. **Knob, turning:** clockwise moves the piece right, one column per click,
-   and it stops at the walls.
-3. **Knob, pressing:** rotates the piece clockwise. Next to a wall it shifts
-   over to make room.
-4. **On-board button** (the unlabelled one, not BOOT or RESET): a quick tap
-   drops the piece to the bottom with a short blip. Holding it makes the
-   piece fall fast until you let go.
-5. **Line clear:** fill a row. It disappears, the rows above move down, the
-   buzzer plays a short rising figure (longer for four rows), the NeoPixel
-   flashes white, and serial logs `[blockfall] cleared ...`.
-6. **Game over:** let the pieces stack to the top. A `GAME OVER` panel shows
-   `BEST` and `PRESS KNOB`, a falling three-note sound plays, and the
-   NeoPixel turns red. Pressing either button starts a new game.
-7. **Best score survives power-off:** after a game, unplug the board, plug it
-   back in, and lose another game quickly. The panel still shows the earlier
-   best.
+| Where | Knob turn | Knob press | On-board button |
+|-------|-----------|------------|-----------------|
+| Menu | choose a game | start it | |
+| Snake | steer: each click turns left or right | | tap: pause / resume |
+| Shooter | move the ship (clockwise = up) | fire | hold: rapid fire |
+| Beats | move the cursor over the grid | switch the step on / off | tap: play / stop; hold + turn: tempo (2 BPM per click) |
+| Blockfall *(hold the board tall)* | move the piece | rotate | tap: drop; hold: fall faster |
+
+- **Back to the menu:** in any game, hold the knob for 1.5 s. The press itself
+  still counts once first (one rotation, one shot, one step toggled).
+- **Game over:** Snake, Shooter and Blockfall show a panel with your score and
+  best. Press the knob or tap the button to play again. Presses in the first
+  0.6 s are ignored.
+- **Best scores** are kept in flash, one per game, and shown in the menu. The
+  beat pattern is kept while the board stays powered, but not across power-off.
+
+### Checking the arcade on the board
+
+1. **Menu:** `ARCADE` and `HOLD KNOB: MENU` on top, four games listed,
+   Blockfall tagged `[TALL]`. Turning moves the highlight and wraps around.
+   Best scores appear after you've set one.
+2. **Back gesture:** from each game, holding the knob 1.5 s returns to the
+   menu, with the screen back in landscape after Blockfall.
+3. **Snake:** the snake moves right at the start; clockwise turns it right.
+   Food (red) makes it grow, beep and speed up. Walls and its own body end the
+   game. A tap pauses it.
+4. **Shooter:** asteroids drift in from the right within a couple of seconds.
+   Clockwise moves the ship up. A press fires one shot; holding the button
+   fires continuously. A hit asteroid vanishes with a low thud and scores.
+   Being hit costs a life (the ship icons top right), flashes the NeoPixel red
+   and makes the ship blink for a second. Three hits end the game.
+5. **Beats:** a starter beat is loaded and `STOPPED` shows. A tap starts it.
+   The playhead (white frame) moves across in time and the buzzer plays kick,
+   snare, hi-hat and bleep sounds. Turning moves the amber cursor; a press
+   toggles a step (it previews its sound when stopped). Holding the button
+   while turning changes the tempo shown top left (60-200 BPM).
+6. **Blockfall:** as before, now inside the arcade. Score and `LV 1` top left,
+   the next piece top right, the well below. Clockwise moves right, a press
+   rotates, a tap drops, a hold falls fast. Line clears flash the NeoPixel
+   white. If the picture is upside down, change `kPortrait` to
+   `kPortraitFlipped` in `BlockfallApp::orientation()`
+   (`lib/blockfall_app/blockfall_app.h`).
+7. **Best scores survive power-off:** set a score in a game, unplug, replug.
+   The menu still shows it. Blockfall keeps the best from the old standalone
+   version.
+8. **Serial:** `make log PORT=... SECONDS=60` while switching games shows
+   `[arcade] -> <game> (free heap ...)` lines with a steady free-heap figure,
+   and no `ERROR` lines.
+
+### Adding a game
+
+1. Put the rules in `lib/<game>_core/` as pure logic with host tests in
+   `test/test_<game>_core/`.
+2. Put the input, drawing and sound in `lib/<game>_app/`, as a class that
+   implements `arcade::App` (`lib/arcade_app/arcade_app.h`).
+3. Add one instance and one entry to the list in `src/arcade/apps.cpp`.
 
 ## Layout
 
-See [ARCHITECTURE.md](ARCHITECTURE.md). To add a project, create
-`src/<name>/main.cpp` and add this to `platformio.ini`:
+See [ARCHITECTURE.md](ARCHITECTURE.md). To add a standalone project (rather
+than an arcade game), create `src/<name>/main.cpp` and add this to
+`platformio.ini`:
 
 ```ini
 [env:<name>]

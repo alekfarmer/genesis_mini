@@ -18,8 +18,17 @@ lib/                     shared code, one library per responsibility
   tone_sequence/         non-blocking beep sequencer         (pure, host-tested)
   conversions/           C->F, BGR panel colours             (pure, host-tested)
   tap_hold/              tap vs hold on one button           (pure, host-tested)
+  rng/                   deterministic random numbers        (pure, host-tested)
+  menu_core/             menu selection and scrolling        (pure, host-tested)
   blockfall_core/        blockfall rules: well, pieces, score (pure, host-tested)
-  panel/                 shared ST7735 + off-screen canvas   (hardware, AX22-0034)
+  snake_core/            snake rules                         (pure, host-tested)
+  shooter_core/          asteroid shooter rules              (pure, host-tested)
+  beat_core/             4x16 step sequencer                 (pure, host-tested)
+  panel/                 shared ST7735 + landscape/portrait canvases (hardware, AX22-0034)
+  arcade_app/            arcade App interface, host services, drawing helpers (hardware)
+  arcade_menu/           the arcade's game menu              (hardware)
+  snake_app/  shooter_app/  beat_app/  blockfall_app/
+                         each game's input, drawing and sound (hardware)
   blockfall_screen/      blockfall renderer, portrait        (hardware)
   status_led/            NeoPixel driver using heartbeat     (hardware)
   board_info/            boot report: chip, flash, PSRAM     (hardware)
@@ -50,6 +59,33 @@ docs/modules.md          which module is in which port (owner-maintained)
 - **Errors are logged.** Every hardware call whose result can be checked is
   checked, and failures are logged to serial with a `[module] ERROR:` prefix.
 
+## The arcade
+
+- `src/arcade/main.cpp` is the **host**. It owns the screen, buzzer,
+  NeoPixel, knob, on-board button and flash storage, and runs one
+  `arcade::App` at a time: the menu or a game.
+- Each loop, it turns knob and button activity into an `arcade::Input`, calls
+  the app's `update()`, plays the current sound, and calls `draw()` and
+  `panel::push()` when `needsRedraw()` says something changed (at most
+  ~30 fps).
+- **Apps** (`lib/*_app`) implement `arcade::App`: name, best-score key,
+  orientation, `enter`/`update`/`needsRedraw`/`draw`/`exit`. They reach the
+  hardware only through the host's services in `arcade_app.h`: `playSound`,
+  `stopSound`, `setLed`, `loadBest`, `saveBest` and `newSeed`.
+- Each game's rules live in a separate pure `*_core` library with host tests.
+  The app adds only input mapping, drawing and sound.
+- **Switching:** a 1.5 s knob hold (the `long_press` field of
+  `EncoderInput::Event`) returns
+  to the menu from any game. The host calls `exit()` on the old app,
+  silences the buzzer, sets the panel orientation for the new app, then calls
+  `enter()`.
+- **Game list:** `src/arcade/apps.cpp`. Adding a game is one instance plus
+  one entry there.
+- **Memory:** game objects are static, created once at boot. The panel keeps
+  one landscape and, after Blockfall first runs, one portrait canvas
+  (25.6 KB each), both allocated once and never freed. Nothing allocates in
+  `loop()`.
+
 ## Toolchain
 
 - PlatformIO Core 6.2.0 lives in `.venv/`. Its packages live in `.pio-core/`
@@ -68,10 +104,11 @@ docs/modules.md          which module is in which port (owner-maintained)
   do the transitive dependencies that are actually compiled (e.g. Adafruit
   BusIO). Dependencies a library declares but this repo never uses go in
   `lib_ignore`.
-- The screen is owned by `lib/panel` (SPI bus, panel driver, one canvas).
-  Each project's renderer draws into `panel::canvas()` and calls
-  `panel::push()`. Landscape follows the catalog (`setRotation(3)`). Portrait
-  (`setRotation(0)`, used by blockfall) is a departure from the catalog.
+- The screen is owned by `lib/panel` (SPI bus, panel driver, canvases).
+  Renderers draw into `panel::canvas()`, and `panel::push()` sends it.
+  `panel::setOrientation()` switches between landscape, which follows the
+  catalog (`setRotation(3)`), and portrait (`setRotation(0)`, used by
+  Blockfall). Portrait is a departure from the catalog.
 - Module code follows the catalog's coding notes: the ST7735 draws into a
   canvas pushed once per frame, only when the view changed and at most
   ~30 fps (this also keeps SPI from disturbing tone()); the DHT11 is read at
@@ -87,4 +124,6 @@ docs/modules.md          which module is in which port (owner-maintained)
 Default 4 MB partition table (`default.csv`): 1.25 MB app ×2 (OTA) plus
 SPIFFS. No eFuse, secure boot or flash-encryption options are used.
 Persistent settings use the `nvs` partition through Preferences, one
-namespace per project (blockfall: `blockfall`, key `best`).
+namespace per game, each with the key `best`: `snake`, `shooter`,
+`blockfall`. The `blockfall` namespace is the one the old standalone project
+used, so its best score carries over.

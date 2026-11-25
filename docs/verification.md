@@ -8,15 +8,61 @@ Before checking a project, flash it:
 To capture serial output for later reading:
 `make log PORT=/dev/cu.usbmodem101 SECONDS=120`.
 
-## blockfall
+## arcade
 
-Flashed 2026-11-24. Start-up log clean (screen and flash storage came up).
-You reported that it mostly works. Note anything that doesn't here.
+Built 2026-11-25. It has **never been flashed**. It builds warning-free and
+all its game logic passes the host tests, but nothing below has been seen on
+the board. Flash it with `make upload PROJECT=arcade PORT=...`. The README's
+"Checking the arcade" section has the full steps.
 
-- [ ] Anything that didn't work: _______________________
+- [ ] **Boots to the menu:** four games listed, Blockfall tagged `[TALL]`,
+      highlight wraps around. Start-up log shows `[arcade] starting, 4 games`
+      and no `ERROR`.
+- [ ] **Back gesture:** holding the knob 1.5 s returns to the menu from every
+      game; after Blockfall the screen is landscape again.
+- [ ] **Switching doesn't leak memory:** `make log` while switching games
+      several times shows a steady `free heap` in the `[arcade] ->` lines.
+      The first Blockfall visit drops it by about 25 KB, once.
+
+### Snake
+- [ ] Starts moving right; clockwise turns right; quick double clicks make a
+      U-turn over two steps.
+- [ ] Food makes it grow, beep and speed up; walls and its own body end the
+      game.
+- [ ] A tap pauses (`PAUSED` banner) and resumes.
+- [ ] Speed: 180 ms per step at the start feels right.
+
+### Shooter
+- [ ] Asteroids drift in from the right; the background stars scroll.
+- [ ] Clockwise moves the ship up (or does down feel more natural? The sign
+      is in `ShooterApp::update`: `moveShip(in.knob_steps)`).
+- [ ] A press fires one shot; holding the on-board button fires continuously.
+- [ ] Hitting a rock: it vanishes, a low thud plays, the score rises
+      (smaller rocks score more).
+- [ ] Being hit: a life icon disappears, the NeoPixel flashes red, the ship
+      blinks for a second, and other rocks pass through meanwhile.
+- [ ] Difficulty: rocks get more frequent and faster as the score rises, but
+      it doesn't feel unfair early on.
+
+### Beats
+- [ ] Starter beat loaded, `STOPPED` shown; a tap starts it, and the white
+      playhead moves in time.
+- [ ] The four sounds are distinguishable on the buzzer (kick low, snare
+      rough, hi-hat high click, bleep a note). This is the most uncertain part:
+      a single buzzer can only approximate drums.
+- [ ] Turning moves the amber cursor row by row; a press toggles a step and
+      previews its sound when stopped.
+- [ ] Holding the button and turning changes the tempo between 60 and 200 BPM,
+      without moving the cursor (after the first ~0.2 s of the hold).
+- [ ] Stopping silences it at once. Leaving and coming back keeps the
+      pattern.
+
+### Blockfall (inside the arcade)
+- [ ] Anything that didn't work in the standalone version you tried
+      earlier: _______________________
 - [ ] **Orientation:** with the screen tall, the picture is the right way up
-      (else `kPortrait` → `kPortraitFlipped` in
-      `lib/blockfall_screen/blockfall_screen.cpp`).
+      (else `kPortrait` → `kPortraitFlipped` in `BlockfallApp::orientation()`,
+      `lib/blockfall_app/blockfall_app.h`).
 - [ ] **Layout:** score and `LV 1` top left, next piece top right, well below
       with its border; nothing cut off at any edge.
 - [ ] **Knob, turn:** clockwise moves right, one column per click; stops at
@@ -25,7 +71,7 @@ You reported that it mostly works. Note anything that doesn't here.
       instead of refusing.
 - [ ] **Tap vs hold:** a quick tap of the on-board button drops instantly; a
       hold falls fast until released. The 220 ms split feels right
-      (`kHoldMs` in `src/blockfall/main.cpp`).
+      (`kButtonHoldMs` in `src/arcade/main.cpp`, shared by every game).
 - [ ] **Speed:** level 1 (a step every 0.8 s) isn't too fast or slow; after 10
       lines `LV 2` appears and pieces fall noticeably faster.
 - [ ] **Responsiveness:** moving quickly while pieces fall never loses knob
