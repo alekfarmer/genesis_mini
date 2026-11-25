@@ -13,11 +13,17 @@ namespace panel {
 /// turns the board a quarter turn (setRotation(0); use 2 if it's upside down).
 enum class Orientation : uint8_t { kLandscape = 3, kPortrait = 0, kPortraitFlipped = 2 };
 
-/// Start SPI, initialise the panel and allocate the canvas (once, 25.6 KB).
-/// Returns false if the canvas could not be allocated or SPI failed to start.
-/// The panel gives no acknowledgement over SPI, so a disconnected screen can
-/// only be spotted by eye.
+/// Start SPI, initialise the panel and allocate the canvas for `orientation`
+/// (25.6 KB, once). Returns false if the canvas could not be allocated or SPI
+/// failed to start. The panel gives no acknowledgement over SPI, so a
+/// disconnected screen can only be spotted by eye.
 bool begin(uint8_t cs, uint8_t rst, uint8_t dc, Orientation orientation);
+
+/// Switch orientation (e.g. when the arcade changes game). The first switch
+/// to the other shape allocates its canvas (another 25.6 KB, kept for the
+/// rest of the program). Returns false if that allocation fails; the
+/// previous orientation then stays active.
+bool setOrientation(Orientation orientation);
 
 /// Canvas to draw into; sized for the orientation (160x80 or 80x160).
 /// Only valid after a successful begin().

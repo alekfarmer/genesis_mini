@@ -51,17 +51,7 @@ void pieceCells(PieceType type, uint8_t rotation, Cell out[4]) {
   }
 }
 
-// ---- Random / Bag ------------------------------------------------------------
-
-Random::Random(uint32_t seed) : state_(seed != 0 ? seed : 0x9E3779B9u) {}
-
-uint32_t Random::next() {
-  // xorshift32 (Marsaglia): never returns 0 for a non-zero state.
-  state_ ^= state_ << 13;
-  state_ ^= state_ >> 17;
-  state_ ^= state_ << 5;
-  return state_;
-}
+// ---- Bag ---------------------------------------------------------------------
 
 Bag::Bag(uint32_t seed) : rng_(seed) { refill(); }
 

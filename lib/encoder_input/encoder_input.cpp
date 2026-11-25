@@ -4,6 +4,7 @@
 #include <RotaryEncoder.h>
 
 #include "debounce.h"
+#include "tap_hold.h"
 
 namespace {
 
@@ -15,8 +16,12 @@ constexpr uint32_t kButtonLockoutMs = 150;
 // (the library counts clockwise as negative with these CLK/DT pins).
 constexpr int32_t kDirection = -1;
 
+constexpr uint32_t kHoldSettleMs = 15;
+
 RotaryEncoder* g_encoder = nullptr;
 Debounce g_button(true, kButtonLockoutMs);
+// Watches the same button for long holds; its tap events are not used.
+TapHold g_hold(true, EncoderInput::kLongPressMs, kHoldSettleMs);
 
 }  // namespace
 
@@ -30,7 +35,7 @@ void EncoderInput::begin() {
 }
 
 EncoderInput::Event EncoderInput::poll(uint32_t now_ms) {
-  Event e{0, false};
+  Event e{0, false, false};
   if (g_encoder == nullptr) {
     return e;
   }
@@ -38,6 +43,8 @@ EncoderInput::Event EncoderInput::poll(uint32_t now_ms) {
   const int32_t position = static_cast<int32_t>(g_encoder->getPosition());
   e.steps = (position - last_position_) * kDirection;
   last_position_ = position;
-  e.pressed = g_button.pressed(digitalRead(button_) == HIGH, now_ms);
+  const bool level = digitalRead(button_) == HIGH;
+  e.pressed = g_button.pressed(level, now_ms);
+  e.long_press = g_hold.update(level, now_ms) == TapHold::Event::kHoldStart;
   return e;
 }

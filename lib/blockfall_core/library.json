@@ -2,5 +2,6 @@
   "name": "blockfall_core",
   "version": "0.1.0",
   "description": "blockfall game rules: pieces, well, line clears, scoring (pure logic, host-testable).",
+  "dependencies": { "rng": "*" },
   "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
 }

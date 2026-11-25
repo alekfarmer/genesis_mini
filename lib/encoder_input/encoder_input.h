@@ -8,9 +8,13 @@
 class EncoderInput {
  public:
   struct Event {
-    int32_t steps;  // detents turned since the last poll (+ clockwise)
-    bool pressed;   // one debounced press
+    int32_t steps;    // detents turned since the last poll (+ clockwise)
+    bool pressed;     // one debounced press, reported the moment it happens
+    bool long_press;  // reported once when the knob has been held kLongPressMs
   };
+
+  /// How long the knob must be held for a long press.
+  static constexpr uint32_t kLongPressMs = 1500;
 
   /// @param button, clk, dt the port's IO0/IO1/IO2 (pins::kEncoder*).
   EncoderInput(uint8_t button, uint8_t clk, uint8_t dt);

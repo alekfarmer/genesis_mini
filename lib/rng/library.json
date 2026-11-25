@@ -1,0 +1,6 @@
+{
+  "name": "rng",
+  "version": "0.1.0",
+  "description": "Deterministic xorshift32 random generator (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

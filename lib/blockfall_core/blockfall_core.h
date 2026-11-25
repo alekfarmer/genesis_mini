@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include "rng.h"
+
 /// Game rules for blockfall, a falling-block puzzle: pieces of four squares
 /// fall into a 10x20 well; full rows clear and score; the game ends when a new
 /// piece has no room. Pure logic (no Arduino), so it is unit-tested on the host.
@@ -24,16 +26,8 @@ struct Cell {
 /// clockwise), relative to the top-left corner of the piece's bounding box.
 void pieceCells(PieceType type, uint8_t rotation, Cell out[4]);
 
-/// Small deterministic random generator (xorshift32). Same seed, same numbers,
-/// which keeps the tests repeatable; the board seeds it from hardware.
-class Random {
- public:
-  explicit Random(uint32_t seed);
-  uint32_t next();
-
- private:
-  uint32_t state_;
-};
+/// The shared generator (lib/rng); seeded from hardware on the board.
+using Random = ::Rng;
 
 /// Deals pieces in shuffled sets of all seven, so no type is ever missing for
 /// long and none repeats more than twice in a row.
