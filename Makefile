@@ -19,7 +19,7 @@ BACKUP_DIR := backups
 # Every [env:...] in platformio.ini except the host test environment.
 PROJECTS := $(filter-out native,$(patsubst [env:%],%,$(shell grep -oE '^\[env:[a-z0-9_]+\]' platformio.ini)))
 
-.PHONY: help setup projects build test ports upload monitor backup restore clean verify check-project check-port check-esptool
+.PHONY: help setup projects build test ports upload monitor log backup restore clean verify check-project check-port check-esptool
 
 help: ## List targets
 	@grep -E '^[a-z]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -50,6 +50,9 @@ upload: $(STAMP) check-project check-port ## Flash a project: make upload PROJEC
 
 monitor: $(STAMP) check-port ## Serial monitor: make monitor PORT=/dev/cu.usbmodemXXXX
 	$(PIO) device monitor -p $(PORT) -b 115200
+
+log: $(STAMP) check-port ## Record serial output for a while: make log PORT=/dev/cu.usbmodemXXXX SECONDS=10
+	$(VENV)/bin/python -I scripts/serial_log.py $(PORT) $(or $(SECONDS),10)
 
 backup: $(STAMP) check-port check-esptool ## Save the board's whole 4 MB flash: make backup PORT=/dev/cu.usbmodemXXXX
 	@mkdir -p $(BACKUP_DIR)
