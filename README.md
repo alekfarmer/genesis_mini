@@ -99,7 +99,7 @@ After `make upload PROJECT=kit_demo ...` and `make monitor ...`:
    raise both values within a few readings.
 3. **Knob, turning:** each click changes `SET` by 1 °F, and serial prints
    `[knob] threshold ...`. Clockwise should increase it. If it decreases,
-   set `kDirection = -1` in `lib/encoder_input/encoder_input.cpp`.
+   flip the sign of `kDirection` in `lib/encoder_input/encoder_input.cpp`.
 4. **Alarm:** turn `SET` below the current temperature. The status becomes
    red `ALARM!`, the buzzer chirps twice about once a second, the NeoPixel
    heartbeat turns red, and serial prints `[alarm] idle -> ALARM`.

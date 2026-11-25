@@ -11,8 +11,9 @@ namespace {
 // active HIGH with the module's own pull-down (plain INPUT), 150 ms lockout.
 constexpr uint32_t kButtonLockoutMs = 150;
 
-// Flip to -1 if turning clockwise lowers the value on your module.
-constexpr int32_t kDirection = 1;
+// Sign that makes clockwise positive. -1 was confirmed on the kit's AX22-0003
+// (the library counts clockwise as negative with these CLK/DT pins).
+constexpr int32_t kDirection = -1;
 
 RotaryEncoder* g_encoder = nullptr;
 Debounce g_button(true, kButtonLockoutMs);
