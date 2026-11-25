@@ -1,0 +1,8 @@
+{
+  "name": "dht_sensor",
+  "version": "0.1.0",
+  "description": "DHT11 temperature & humidity wrapper for the kit's AX22-0011 module.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

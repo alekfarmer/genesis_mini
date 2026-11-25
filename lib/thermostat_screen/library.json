@@ -1,0 +1,9 @@
+{
+  "name": "thermostat_screen",
+  "version": "0.1.0",
+  "description": "ST7735 160x80 thermostat display for the kit's AX22-0034 screen.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": { "conversions": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

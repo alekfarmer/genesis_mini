@@ -1,0 +1,8 @@
+{
+  "name": "buzzer",
+  "version": "0.1.0",
+  "description": "Passive buzzer driver for the kit's AX22-0018 module.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

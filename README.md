@@ -11,7 +11,7 @@ board, and you choose which one to flash.
 | Project     | What it does |
 |-------------|--------------|
 | `hello`     | First flash on a new board: boot report (chip, flash, PSRAM, reset reason), I2C scan, NeoPixel heartbeat (green = OK, red = a check failed). |
-| `kit_demo`  | *(coming)* Uses the Starter Kit modules: screen, buzzer, temperature/humidity sensor, rotary encoder. |
+| `kit_demo`  | Over-temperature alarm using every Starter Kit module: the screen shows temperature, humidity and a threshold; turn the knob to set the threshold; above it, the buzzer beeps and the NeoPixel turns red; press the knob to silence. |
 
 ## Requirements
 
@@ -59,10 +59,10 @@ uses (see `docs/modules.md`):
 
 | Port | Module |
 |------|--------|
-| 1 | ST7735 160×80 TFT screen (SPI) |
-| 2 | Passive buzzer |
-| 3 | Temperature/humidity sensor |
-| 4 | Rotary encoder with push button |
+| 1 | ST7735 160×80 TFT screen (SPI), AX22-0034 |
+| 2 | Passive buzzer, AX22-0018 |
+| 3 | DHT11 temperature & humidity sensor, AX22-0011 |
+| 4 | Rotary encoder with push button, AX22-0003 |
 
 Each port carries 3.3 V, GND, three unique I/O pins, and the shared SPI and I2C
 buses. All logic is **3.3 V**: never connect a 5 V signal to a port or pad. The
@@ -71,18 +71,44 @@ pins are in `include/pins.h`.
 
 ## Checking `hello` on the board
 
-After `make upload PROJECT=hello ...` and `make monitor ...`, press RESET and
-check that:
+After `make upload PROJECT=hello ...`, run `make monitor ...`. The report is
+printed whenever a monitor connects, so there's no need to press RESET.
+Check that:
 
 1. Serial shows `[board] ESP32-S3 ...`, `flash 4096 KB` and `PSRAM 2048 KB`
    (the PSRAM size may read a little under 2048).
-2. It shows `[i2c] bus up on SDA=10 SCL=11` and a scan result. With only the
-   kit plugged in, the I2C devices listed depend on which sensor module is in
-   port 3.
+2. It shows an I2C scan result. The Starter Kit modules don't use I2C, so
+   `0 device(s)` is normal. A STEMMA QT breakout would show up here.
 3. It ends with `[hello] all checks passed`.
 4. The NeoPixel blinks a green double-pulse about once a second. Red means a
    check failed, so read the log.
 5. `[hello] uptime ...` lines appear every 10 seconds.
+
+Quit the monitor (Ctrl+C) before the next upload: it holds the port.
+
+## Checking `kit_demo` on the board
+
+After `make upload PROJECT=kit_demo ...` and `make monitor ...`:
+
+1. **Screen:** shows `TEMP` and `HUMIDITY` with values (`--.-F` until the
+   first reading, within 2 s), `SET 79F` in amber and `OK` in green. Text is
+   upright and nothing is cut off at the edges. Colours look right: green
+   `OK`, amber `SET`. If red and blue look swapped, the BGR handling is wrong.
+2. **Sensor:** serial prints a `[dht] ... F, ... % RH` line every 2 s, and the
+   temperature looks plausible for the room. Breathing on the sensor should
+   raise both values within a few readings.
+3. **Knob, turning:** each click changes `SET` by 1 °F, and serial prints
+   `[knob] threshold ...`. Clockwise should increase it. If it decreases,
+   set `kDirection = -1` in `lib/encoder_input/encoder_input.cpp`.
+4. **Alarm:** turn `SET` below the current temperature. The status becomes
+   red `ALARM!`, the buzzer chirps twice about once a second, the NeoPixel
+   heartbeat turns red, and serial prints `[alarm] idle -> ALARM`.
+5. **Knob, pressing:** the buzzer stops, the status becomes amber
+   `SILENCED`, and the NeoPixel goes back to green.
+6. **Re-arm:** turn `SET` at least 2 °F above the temperature. The status
+   returns to `OK`. Turn it back below and the alarm sounds again.
+7. **Sensor unplugged** (optional): within 2 s the status shows `NO SENSR`
+   and serial logs `[dht] ERROR: read failed`.
 
 ## Layout
 

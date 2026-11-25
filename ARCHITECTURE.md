@@ -13,9 +13,17 @@ include/secrets.example.h  template for the gitignored include/secrets.h
 lib/                     shared code, one library per responsibility
   periodic/              non-blocking interval timer        (pure, host-tested)
   heartbeat/             status-LED blink pattern            (pure, host-tested)
+  debounce/              button press edges with lockout     (pure, host-tested)
+  threshold_alarm/       alarm state machine, hysteresis     (pure, host-tested)
+  tone_sequence/         non-blocking beep sequencer         (pure, host-tested)
+  conversions/           C->F, BGR panel colours             (pure, host-tested)
   status_led/            NeoPixel driver using heartbeat     (hardware)
   board_info/            boot report: chip, flash, PSRAM     (hardware)
   i2c_bus/               shared I2C bus setup and scan       (hardware)
+  thermostat_screen/     ST7735 screen, off-screen canvas    (hardware, AX22-0034)
+  dht_sensor/            DHT11 wrapper                       (hardware, AX22-0011)
+  buzzer/                passive buzzer tone()/noTone()      (hardware, AX22-0018)
+  encoder_input/         rotary encoder + button events      (hardware, AX22-0003)
 src/<project>/main.cpp   one folder per project; thin setup()/loop() wiring libraries together
 test/test_<lib>/         Unity tests, run on the host by `make test`
 docs/modules.md          which module is in which port (owner-maintained)
@@ -52,7 +60,15 @@ docs/modules.md          which module is in which port (owner-maintained)
   `library.json` `build.flags`) and for the native tests. Framework code is
   compiled with its own flags.
 - Third-party libraries go in each project's `lib_deps`, pinned to exact
-  versions (the versions the Axiometa catalog lists for each module).
+  versions (the versions the Axiometa catalog lists for each module), and so
+  do the transitive dependencies that are actually compiled (e.g. Adafruit
+  BusIO). Dependencies a library declares but this repo never uses go in
+  `lib_ignore`.
+- Module code follows the catalog's coding notes: the ST7735 draws into a
+  canvas pushed once per frame, only when the view changed and at most
+  ~30 fps (this also keeps SPI from disturbing tone()); the DHT11 is read at
+  most every 2 s; the encoder uses LatchMode::TWO03 and an active-high
+  button with a 150 ms lockout.
 - `axiometa-cli` (also in `.venv/`) is used only as a read-only reference for
   board and module facts, through the Claude Code MCP server in `.mcp.json`
   (gitignored; see `.mcp.json.example`). Its compile, upload and serial tools
