@@ -14,4 +14,5 @@ class Buzzer {
 
  private:
   uint8_t pin_;
+  bool playing_ = false;  // a tone is currently running on pin_
 };
