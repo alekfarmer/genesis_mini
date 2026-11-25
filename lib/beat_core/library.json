@@ -1,0 +1,6 @@
+{
+  "name": "beat_core",
+  "version": "0.1.0",
+  "description": "4x16 step sequencer for the beat maker (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

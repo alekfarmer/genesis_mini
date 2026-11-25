@@ -1,0 +1,6 @@
+{
+  "name": "menu_core",
+  "version": "0.1.0",
+  "description": "List-menu selection and scrolling (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
