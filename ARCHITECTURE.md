@@ -17,10 +17,14 @@ lib/                     shared code, one library per responsibility
   threshold_alarm/       alarm state machine, hysteresis     (pure, host-tested)
   tone_sequence/         non-blocking beep sequencer         (pure, host-tested)
   conversions/           C->F, BGR panel colours             (pure, host-tested)
+  tap_hold/              tap vs hold on one button           (pure, host-tested)
+  blockfall_core/        blockfall rules: well, pieces, score (pure, host-tested)
+  panel/                 shared ST7735 + off-screen canvas   (hardware, AX22-0034)
+  blockfall_screen/      blockfall renderer, portrait        (hardware)
   status_led/            NeoPixel driver using heartbeat     (hardware)
   board_info/            boot report: chip, flash, PSRAM     (hardware)
   i2c_bus/               shared I2C bus setup and scan       (hardware)
-  thermostat_screen/     ST7735 screen, off-screen canvas    (hardware, AX22-0034)
+  thermostat_screen/     kit_demo renderer, landscape        (hardware)
   dht_sensor/            DHT11 wrapper                       (hardware, AX22-0011)
   buzzer/                passive buzzer tone()/noTone()      (hardware, AX22-0018)
   encoder_input/         rotary encoder + button events      (hardware, AX22-0003)
@@ -64,6 +68,10 @@ docs/modules.md          which module is in which port (owner-maintained)
   do the transitive dependencies that are actually compiled (e.g. Adafruit
   BusIO). Dependencies a library declares but this repo never uses go in
   `lib_ignore`.
+- The screen is owned by `lib/panel` (SPI bus, panel driver, one canvas).
+  Each project's renderer draws into `panel::canvas()` and calls
+  `panel::push()`. Landscape follows the catalog (`setRotation(3)`). Portrait
+  (`setRotation(0)`, used by blockfall) is a departure from the catalog.
 - Module code follows the catalog's coding notes: the ST7735 draws into a
   canvas pushed once per frame, only when the view changed and at most
   ~30 fps (this also keeps SPI from disturbing tone()); the DHT11 is read at
@@ -78,3 +86,5 @@ docs/modules.md          which module is in which port (owner-maintained)
 
 Default 4 MB partition table (`default.csv`): 1.25 MB app ×2 (OTA) plus
 SPIFFS. No eFuse, secure boot or flash-encryption options are used.
+Persistent settings use the `nvs` partition through Preferences, one
+namespace per project (blockfall: `blockfall`, key `best`).

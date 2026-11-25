@@ -12,6 +12,7 @@ board, and you choose which one to flash.
 |-------------|--------------|
 | `hello`     | First flash on a new board: boot report (chip, flash, PSRAM, reset reason), I2C scan, NeoPixel heartbeat (green = OK, red = a check failed). |
 | `kit_demo`  | Over-temperature alarm using every Starter Kit module: the screen shows temperature, humidity and a threshold; turn the knob to set the threshold; above it, the buzzer beeps and the NeoPixel turns red; press the knob to silence. |
+| `blockfall` | Falling-block puzzle game. Hold the board in portrait (screen tall). Turn the knob to move, press it to rotate; tap the on-board button to drop, hold it to fall faster. The best score is saved in flash. |
 
 ## Requirements
 
@@ -109,6 +110,33 @@ After `make upload PROJECT=kit_demo ...` and `make monitor ...`:
    returns to `OK`. Turn it back below and the alarm sounds again.
 7. **Sensor unplugged** (optional): within 2 s the status shows `NO SENSR`
    and serial logs `[dht] ERROR: read failed`.
+
+## Checking `blockfall` on the board
+
+After `make upload PROJECT=blockfall ...`, hold the board so the screen is
+tall:
+
+1. **Screen:** score and `LV 1` top left, the next piece top right, and the
+   bordered well below with a piece falling about once every 0.8 s. Nothing
+   should be cut off. If the picture is upside down, change
+   `kPortrait` to `kPortraitFlipped` in `BlockfallScreen::begin()`
+   (`lib/blockfall_screen/blockfall_screen.cpp`).
+2. **Knob, turning:** clockwise moves the piece right, one column per click,
+   and it stops at the walls.
+3. **Knob, pressing:** rotates the piece clockwise. Next to a wall it shifts
+   over to make room.
+4. **On-board button** (the unlabelled one, not BOOT or RESET): a quick tap
+   drops the piece to the bottom with a short blip. Holding it makes the
+   piece fall fast until you let go.
+5. **Line clear:** fill a row. It disappears, the rows above move down, the
+   buzzer plays a short rising figure (longer for four rows), the NeoPixel
+   flashes white, and serial logs `[blockfall] cleared ...`.
+6. **Game over:** let the pieces stack to the top. A `GAME OVER` panel shows
+   `BEST` and `PRESS KNOB`, a falling three-note sound plays, and the
+   NeoPixel turns red. Pressing either button starts a new game.
+7. **Best score survives power-off:** after a game, unplug the board, plug it
+   back in, and lose another game quickly. The panel still shows the earlier
+   best.
 
 ## Layout
 
