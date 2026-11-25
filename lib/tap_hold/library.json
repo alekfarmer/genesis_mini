@@ -1,0 +1,6 @@
+{
+  "name": "tap_hold",
+  "version": "0.1.0",
+  "description": "Tap vs hold detection with debouncing (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
