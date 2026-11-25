@@ -1,0 +1,9 @@
+{
+  "name": "arcade_menu",
+  "version": "0.1.0",
+  "description": "The arcade's game-selection menu.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": { "arcade_app": "*", "menu_core": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

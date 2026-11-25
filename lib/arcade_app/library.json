@@ -1,0 +1,9 @@
+{
+  "name": "arcade_app",
+  "version": "0.1.0",
+  "description": "Arcade app interface, host services and shared drawing helpers.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": { "panel": "*", "conversions": "*", "status_led": "*", "tone_sequence": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

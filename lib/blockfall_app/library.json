@@ -1,0 +1,9 @@
+{
+  "name": "blockfall_app",
+  "version": "0.1.0",
+  "description": "blockfall for the arcade (input, sound, light, best score).",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": { "arcade_app": "*", "blockfall_core": "*", "blockfall_screen": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

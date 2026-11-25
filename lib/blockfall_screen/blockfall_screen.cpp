@@ -61,17 +61,7 @@ void printAt(int16_t x, int16_t y, uint8_t size, uint16_t color, const char* tex
 
 }  // namespace
 
-BlockfallScreen::BlockfallScreen(uint8_t cs, uint8_t rst, uint8_t dc) : cs_(cs), rst_(rst), dc_(dc) {}
-
-bool BlockfallScreen::begin() {
-  ready_ = panel::begin(cs_, rst_, dc_, panel::Orientation::kPortrait);
-  return ready_;
-}
-
-void BlockfallScreen::draw(const Game& game, uint32_t best) {
-  if (!ready_) {
-    return;
-  }
+void blockfall::drawGame(const Game& game, uint32_t best) {
   GFXcanvas16& c = panel::canvas();
   char text[16];
   c.fillScreen(kBlack);
@@ -117,6 +107,4 @@ void BlockfallScreen::draw(const Game& game, uint32_t best) {
     printAt(12, 94, 1, kText, text);
     printAt(10, 106, 1, kDim, "PRESS KNOB");
   }
-
-  panel::push();
 }

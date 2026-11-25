@@ -1,0 +1,9 @@
+{
+  "name": "shooter_app",
+  "version": "0.1.0",
+  "description": "Asteroid shooter for the arcade (drawing, sound, input).",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": { "arcade_app": "*", "shooter_core": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
