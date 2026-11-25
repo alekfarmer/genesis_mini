@@ -28,9 +28,8 @@ constexpr uint8_t kTftDc = P1_IO2;   // data/command
 // ---- Port 2: Passive buzzer (AX22-0018) -----------------------------------
 constexpr uint8_t kBuzzer = P2_IO1;  // PWM tone output
 
-// ---- Port 3: Temperature/humidity sensor ----------------------------------
-// Pending: which module this is (DHT11 AX22-0011 uses P3_IO1; BME280 AX22-0026
-// is I2C at 0x77 and uses no IO pin). Not wired up until confirmed.
+// ---- Port 3: DHT11 temperature & humidity sensor (AX22-0011) --------------
+constexpr uint8_t kDht = P3_IO1;  // single-wire data, pull-up on the module
 
 // ---- Port 4: Rotary encoder with push button (AX22-0003) ------------------
 constexpr uint8_t kEncoderButton = P4_IO0;  // active HIGH, module has pull-down

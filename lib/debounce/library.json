@@ -1,0 +1,6 @@
+{
+  "name": "debounce",
+  "version": "0.1.0",
+  "description": "Button edge detection with lockout (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

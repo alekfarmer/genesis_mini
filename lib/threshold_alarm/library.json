@@ -1,0 +1,6 @@
+{
+  "name": "threshold_alarm",
+  "version": "0.1.0",
+  "description": "Over-temperature alarm state machine with hysteresis (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "tone_sequence",
+  "version": "0.1.0",
+  "description": "Non-blocking tone sequencer (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

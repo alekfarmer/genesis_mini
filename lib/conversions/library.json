@@ -1,0 +1,6 @@
+{
+  "name": "conversions",
+  "version": "0.1.0",
+  "description": "Unit and panel-colour conversions (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

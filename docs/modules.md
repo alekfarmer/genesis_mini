@@ -9,7 +9,7 @@ per-module pin roles come from the Axiometa catalog (`get_module`).
 |-----------|-----------------------------|------------|-----------|-----------|
 | 1         | ST7735 160×80 IPS TFT       | AX22-0034  | SPI (shared bus) | IO0 = CS, IO1 = RST, IO2 = DC |
 | 2         | Passive buzzer              | AX22-0018  | PWM       | IO1 |
-| 3         | Temperature/humidity sensor | TBD: DHT11 (AX22-0011) or BME280 (AX22-0026) | DHT11: single-wire on IO1. BME280: I2C at 0x77 | TBD |
+| 3         | DHT11 temperature & humidity | AX22-0011 | single-wire (pull-up on module) | IO1 = data |
 | 4         | Rotary encoder + button     | AX22-0003  | GPIO      | IO0 = button (active HIGH), IO1 = CLK, IO2 = DT |
 
 On-board (no port): NeoPixel (GPIO21), user button (GPIO45), STEMMA QT
