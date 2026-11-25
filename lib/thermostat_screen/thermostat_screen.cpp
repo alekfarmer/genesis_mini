@@ -1,15 +1,11 @@
 #include "thermostat_screen.h"
 
-#include <Adafruit_GFX.h>
-#include <Adafruit_ST7735.h>
-#include <SPI.h>
+#include <stdio.h>
 
 #include "conversions.h"
+#include "panel.h"
 
 namespace {
-
-constexpr int16_t kWidth = 160;
-constexpr int16_t kHeight = 80;
 
 // Layout (catalog rule: everything inside 160x80; size 1 = 6x8 px, size 2 =
 // 12x16 px per character). Two columns on top, two full-width rows below.
@@ -32,17 +28,12 @@ const uint16_t kGreen = conversions::panelColor(0, 220, 80);
 const uint16_t kRed = conversions::panelColor(255, 40, 40);
 const uint16_t kAmber = conversions::panelColor(255, 180, 0);
 
-// One SPI peripheral, one panel, one 160x80 16-bit canvas (25.6 KB, allocated
-// once at startup, never in the loop). SPIClass must be FSPI on the ESP32-S3.
-SPIClass g_spi(FSPI);
-GFXcanvas16 g_canvas(kWidth, kHeight);
-Adafruit_ST7735* g_tft = nullptr;
-
 void printAt(int16_t x, int16_t y, uint8_t size, uint16_t color, const char* text) {
-  g_canvas.setTextSize(size);
-  g_canvas.setTextColor(color);
-  g_canvas.setCursor(x, y);
-  g_canvas.print(text);
+  GFXcanvas16& c = panel::canvas();
+  c.setTextSize(size);
+  c.setTextColor(color);
+  c.setCursor(x, y);
+  c.print(text);
 }
 
 }  // namespace
@@ -50,25 +41,8 @@ void printAt(int16_t x, int16_t y, uint8_t size, uint16_t color, const char* tex
 ThermostatScreen::ThermostatScreen(uint8_t cs, uint8_t rst, uint8_t dc) : cs_(cs), rst_(rst), dc_(dc) {}
 
 bool ThermostatScreen::begin() {
-  // GFXcanvas16 allocates its 25.6 KB buffer at startup; drawing without it
-  // would crash, so refuse to start instead.
-  if (g_canvas.getBuffer() == nullptr) {
-    return false;
-  }
-  // Catalog init for AX22-0034, in order. MISO is included so the shared bus
-  // also works for other SPI modules.
-  static Adafruit_ST7735 tft(&g_spi, cs_, dc_, rst_);
-  g_tft = &tft;
-  g_spi.begin(SCK, MISO, MOSI);
-  if (g_spi.bus() == nullptr) {
-    return false;
-  }
-  tft.initR(INITR_MINI160x80);
-  tft.setRotation(3);
-  tft.fillScreen(kBlack);  // one-time clear, allowed outside the draw loop
-  g_canvas.setTextWrap(false);
-  ready_ = true;
-  return true;
+  ready_ = panel::begin(cs_, rst_, dc_, panel::Orientation::kLandscape);
+  return ready_;
 }
 
 void ThermostatScreen::draw(const ThermostatView& view) {
@@ -76,7 +50,7 @@ void ThermostatScreen::draw(const ThermostatView& view) {
     return;
   }
   char text[12];
-  g_canvas.fillScreen(kBlack);
+  panel::canvas().fillScreen(kBlack);
 
   printAt(kLeftX, kLabelY, 1, kGrey, "TEMP");
   printAt(kRightX, kLabelY, 1, kGrey, "HUMIDITY");
@@ -101,5 +75,5 @@ void ThermostatScreen::draw(const ThermostatView& view) {
     case ThermostatView::Status::kSensorError: printAt(kLeftX, kStatusY, 2, kRed, "NO SENSR"); break;
   }
 
-  g_tft->drawRGBBitmap(0, 0, g_canvas.getBuffer(), kWidth, kHeight);
+  panel::push();
 }
