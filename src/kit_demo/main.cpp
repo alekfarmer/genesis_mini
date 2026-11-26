@@ -8,8 +8,17 @@
 //
 // The alarm sounds when the temperature rises above the threshold and clears
 // once it falls 1 °F below it. A silenced alarm stays quiet until it clears.
+//
+// Ports come from include/board_config.h. If any of the four modules isn't
+// configured, a stub is built instead that says which one is missing.
 
 #include <Arduino.h>
+
+#include "pins.h"
+
+#define KIT_DEMO_MODULES_OK (HAS_TFT && HAS_BUZZER && HAS_DHT11 && HAS_ENCODER)
+
+#if KIT_DEMO_MODULES_OK
 
 #include <algorithm>
 
@@ -18,7 +27,6 @@
 #include "dht_sensor.h"
 #include "encoder_input.h"
 #include "periodic.h"
-#include "pins.h"
 #include "status_led.h"
 #include "thermostat_screen.h"
 #include "threshold_alarm.h"
@@ -177,3 +185,37 @@ void loop() {
 
   g_led.update(now);
 }
+
+#else  // !KIT_DEMO_MODULES_OK
+
+// Stub: the board config lacks a module kit_demo needs. It reports which one
+// once a second (so a monitor attached late still sees it) and shows a red
+// heartbeat.
+#include "periodic.h"
+#include "status_led.h"
+
+namespace {
+StatusLed g_led(pins::kNeoPixel, {16, 0, 0});
+Periodic g_report(1000);
+
+void reportMissing() {
+  Serial.println("[kit_demo] ERROR: needs these modules in include/board_config.h:");
+  if (!HAS_TFT) Serial.println("[kit_demo]   - screen (MOD_TFT, AX22-0034)");
+  if (!HAS_BUZZER) Serial.println("[kit_demo]   - buzzer (MOD_BUZZER, AX22-0018)");
+  if (!HAS_DHT11) Serial.println("[kit_demo]   - DHT11 sensor (MOD_DHT11, AX22-0011)");
+  if (!HAS_ENCODER) Serial.println("[kit_demo]   - rotary encoder (MOD_ENCODER, AX22-0003)");
+}
+}  // namespace
+
+void setup() {
+  Serial.begin(115200);
+  g_led.begin();
+}
+
+void loop() {
+  const uint32_t now = millis();
+  if (g_report.due(now)) reportMissing();
+  g_led.update(now);
+}
+
+#endif  // KIT_DEMO_MODULES_OK

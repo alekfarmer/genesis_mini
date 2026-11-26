@@ -23,6 +23,7 @@ struct Input {
   bool button_hold_start;  // on-board button: held past ~220 ms
   bool button_held;        // ...and still held
   bool button_hold_end;    // ...released after a hold
+  bool led_button_pressed; // Tactile LED Button module, if configured: a press
 };
 
 class App {
@@ -67,6 +68,10 @@ void stopSound();
 
 /// Set the NeoPixel heartbeat colour.
 void setLed(StatusLed::Color color);
+
+/// Turn the Tactile LED Button's own LED on or off (does nothing if that
+/// module isn't configured). The host turns it off when switching apps.
+void setButtonLed(bool on);
 
 /// Best score saved under `key` (0 if none). Errors are logged to serial.
 uint32_t loadBest(const char* key);

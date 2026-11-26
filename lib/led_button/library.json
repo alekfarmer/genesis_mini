@@ -1,0 +1,8 @@
+{
+  "name": "led_button",
+  "version": "0.1.0",
+  "description": "Tactile LED Button (AX22-0050): press edges and LED control.",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
