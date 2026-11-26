@@ -1,0 +1,7 @@
+{
+  "name": "penalty_core",
+  "version": "0.1.0",
+  "description": "Penalty-kick shooter vs computer goalie rules (pure logic, host-testable).",
+  "dependencies": { "rng": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

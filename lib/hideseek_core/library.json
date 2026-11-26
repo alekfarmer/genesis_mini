@@ -1,0 +1,6 @@
+{
+  "name": "hideseek_core",
+  "version": "0.1.0",
+  "description": "Two-player hide-and-seek rules (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}

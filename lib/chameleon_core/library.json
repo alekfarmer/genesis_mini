@@ -1,0 +1,7 @@
+{
+  "name": "chameleon_core",
+  "version": "0.1.0",
+  "description": "Chameleon hide-from-the-seekers rules (pure logic, host-testable).",
+  "dependencies": { "rng": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
