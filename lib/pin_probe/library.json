@@ -1,0 +1,6 @@
+{
+  "name": "pin_probe",
+  "version": "0.1.0",
+  "description": "Classify a pin from pull-up / pull-down reads (pure logic, host-testable).",
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
