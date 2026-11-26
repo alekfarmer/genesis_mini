@@ -10,14 +10,21 @@ To capture serial output for later reading:
 
 ## arcade
 
-Built 2026-11-25. It has **never been flashed**. It builds warning-free and
+Built 2026-11-25; Hide+Seek, Chameleon, Penalty and the module config added
+2026-11-26. It has **never been flashed**. It builds warning-free and
 all its game logic passes the host tests, but nothing below has been seen on
 the board. Flash it with `make upload PROJECT=arcade PORT=...`. The README's
 "Checking the arcade" section has the full steps.
 
-- [ ] **Boots to the menu:** four games listed, Blockfall tagged `[TALL]`,
-      highlight wraps around. Start-up log shows `[arcade] starting, 4 games`
-      and no `ERROR`.
+- [ ] **Boots to the menu:** six games listed (Snake, Shooter, Beats,
+      Blockfall, Hide+Seek, Penalty), scrolling past five; Blockfall tagged
+      `[TALL]`; highlight wraps around. Start-up log shows
+      `[arcade] starting, 6 games`, one `port N:` line per port matching
+      `board_config.h`, and no `ERROR`.
+- [ ] **Config filtering:** flash `arcade_led_button` with the LED button in
+      port 3: Chameleon appears, 7 games. Then set port 2 to `MOD_NONE` in
+      `board_config.h`, rebuild and flash `arcade`: Beats is gone and the
+      other games run silently. (Put the buzzer back afterwards.)
 - [ ] **Back gesture:** holding the knob 1.5 s returns to the menu from every
       game; after Blockfall the screen is landscape again.
 - [ ] **Switching doesn't leak memory:** `make log` while switching games
@@ -57,6 +64,39 @@ the board. Flash it with `make upload PROJECT=arcade PORT=...`. The README's
 - [ ] Stopping silences it at once. Leaving and coming back keeps the
       pattern.
 
+### Hide+Seek (two players)
+- [ ] 12 spots drawn and recognisable (trees, bushes, rocks, shed, logs,
+      well); the cursor sweeps left to right.
+- [ ] The "take the board / look away" screens appear between turns, and the
+      hiding spot isn't given away (the cursor starts at the left for the
+      seeker).
+- [ ] Misses: X on the spot, HOT/WARM/COLD on the status line with a
+      matching beep and NeoPixel colour. Do the hints feel fair (hot under
+      30 px, warm under 60 px)?
+- [ ] After 4 rounds the totals and the right winner show; a press starts a
+      new match.
+
+### Chameleon (needs the LED button: flash `arcade_led_button`)
+- [ ] The LED button in port 3 works: its light is on exactly when the HUD
+      says `PRESS TO HIDE`, and a press camouflages you.
+- [ ] Camouflaged: you take the object's colour, the NeoPixel shows it, and
+      a seeker looking straight at you doesn't catch you. It wears off after
+      3 s, or sooner if you walk away. Then `RECHARGE` counts down.
+- [ ] Seekers' cone lines match what actually catches you: in front within
+      ~34 px, or touching from any side.
+- [ ] Clockwise turns you clockwise; a knob press stops and starts you.
+- [ ] Difficulty: a seeker joins every 20 s. Is it survivable for a while?
+
+### Penalty
+- [ ] Goal, net, goalie and ball look right; the aim cross moves with the
+      knob, clockwise = right.
+- [ ] The power meter swings up and down; power past the red line goes over
+      the bar, and very hard shots drift.
+- [ ] The goalie dives (sometimes the right way) and saves some shots, but
+      round 1 isn't too hard.
+- [ ] Shot dots fill green/red; after 5 shots the round panel says THROUGH!
+      or NOT ENOUGH GOALS; game over saves the best.
+
 ### Blockfall (inside the arcade)
 - [ ] Anything that didn't work in the standalone version you tried
       earlier: _______________________
@@ -89,6 +129,17 @@ the board. Flash it with `make upload PROJECT=arcade PORT=...`. The README's
       `(new best)` only when it was beaten.
 - [ ] **Serial log:** `make log` during play shows `cleared N line(s)` and
       `game over` lines with sensible scores, and no `ERROR` lines.
+
+## probe (module detection experiment)
+
+Never flashed. It reads pins only; it never drives them.
+
+- [ ] Flash `probe` and run `make log PORT=... SECONDS=10` with the Starter
+      Kit plugged in as configured. Save the table.
+- [ ] Unplug each module in turn and log again (the screen may go blank:
+      that's its reset pin being read). Save each table.
+- [ ] Bring me the logs: they decide which modules boot-time detection can
+      warn about.
 
 ## kit_demo
 
