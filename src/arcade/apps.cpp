@@ -12,6 +12,9 @@
 //   Shooter     -
 //   Beats       buzzer (it is a sound toy)
 //   Blockfall   -
+//   Hide+Seek   -
+//   Chameleon   Tactile LED Button (AX22-0050)
+//   Penalty     -
 
 #include "apps.h"
 
@@ -20,10 +23,15 @@
 #if HAS_TFT && HAS_ENCODER
 
 #include "blockfall_app.h"
+#include "hideseek_app.h"
+#include "penalty_app.h"
 #include "shooter_app.h"
 #include "snake_app.h"
 #if HAS_BUZZER
 #include "beat_app.h"
+#endif
+#if HAS_LED_BUTTON
+#include "chameleon_app.h"
 #endif
 
 namespace {
@@ -33,6 +41,11 @@ ShooterApp g_shooter;
 BeatApp g_beats;
 #endif
 BlockfallApp g_blockfall;
+HideSeekApp g_hideseek;
+#if HAS_LED_BUTTON
+ChameleonApp g_chameleon;
+#endif
+PenaltyApp g_penalty;
 }  // namespace
 
 arcade::App* const kGames[] = {
@@ -42,6 +55,11 @@ arcade::App* const kGames[] = {
     &g_beats,
 #endif
     &g_blockfall,
+    &g_hideseek,
+#if HAS_LED_BUTTON
+    &g_chameleon,
+#endif
+    &g_penalty,
 };
 
 const uint8_t kGameCount = sizeof(kGames) / sizeof(kGames[0]);

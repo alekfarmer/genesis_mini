@@ -1,0 +1,9 @@
+{
+  "name": "penalty_app",
+  "version": "0.1.0",
+  "description": "Penalty Kick for the arcade (drawing, sound, input).",
+  "frameworks": "arduino",
+  "platforms": "espressif32",
+  "dependencies": { "arcade_app": "*", "penalty_core": "*" },
+  "build": { "flags": ["-Wall", "-Wextra", "-Werror"] }
+}
